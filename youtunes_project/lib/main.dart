@@ -7,7 +7,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'YouTunes Demo',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -20,22 +20,13 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'YouTunes Music Player Demo Page'),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
 
   final String title;
 
@@ -44,68 +35,216 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+      body: Column(
+        children: <Widget>[
+          Expanded( // for top bar
+            flex: 10,
+            child: Row(
+              children: <Widget>[
+                Icon(
+                  Icons.keyboard_arrow_down,
+                  size: 40.0,
+                ),
+              Expanded(
+                child: Row()
+              ),
+                Icon(
+                  Icons.more_vert,
+                  size: 40.0,
+                ),
+              ],
+            )
+          ),
+          Expanded( // video
+              flex: 40,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Image(
+                    image: AssetImage("assets/sampleimage.jpg")
+                  ),
+                ],
+              )
+          ),
+          Expanded( // video info, artist, like button, add button
+              flex: 10,
+              child: Row(
+                children: <Widget>[
+                  Icon(
+                    Icons.favorite_border,
+                    size: 40.0,
+                  ),
+                  Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Text(
+                            "Video name",
+                            style: TextStyle(
+                              fontSize: 25,
+                            ),
+                          ),
+                          Text(
+                            "Artist name",
+                          ),
+                        ],
+                      )
+                  ),
+                  Icon(
+                    Icons.playlist_add,
+                    size: 40.0,
+                  ),
+                ],
+              )
+          ),
+          Expanded( // video timestamp
+              flex: 10,
+              child: Column(
+                children: <Widget>[
+                  Slider( // timestamp slider
+                    value: 0,
+                    onChanged: (newTime) {
+                      setState(() {
+
+                      });
+                    },
+                  ),
+                  Expanded( // timestamp numbers
+                      flex: 10,
+                      child: Row(
+                        children: <Widget>[
+                          Container(
+                            margin: EdgeInsets.only(left: 25),
+                            child: Text(
+                                "0:00",
+                              textAlign: TextAlign.left,
+                            ),
+                          ),
+                          Expanded(
+                              child: Row()
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(right: 25),
+                            child: Text(
+                                "3:00",
+                              textAlign: TextAlign.right,
+                            ),
+                          ),
+                        ],
+                      )
+                  ),
+                ],
+              )
+          ),
+          Expanded( // back, play/pause, skip buttons
+              flex: 10,
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                    child: Icon(
+                      Icons.skip_previous,
+                      size: 50.0,
+                    ),
+                  ),
+                  Expanded(
+                      child: Icon(
+                        Icons.play_arrow,
+                        size: 50.0,
+                      ),
+                  ),
+                  Expanded(
+                    child: Icon(
+                      Icons.skip_next,
+                      size: 50.0,
+                    ),
+                  ),
+                ],
+              )
+          ),
+          Expanded( // sleep mode button
+              flex: 10,
+              child: Column(
+                children: <Widget>[
+                  FlatButton(
+                    color: Colors.blue,
+                    textColor: Colors.white,
+                    disabledColor: Colors.grey,
+                    disabledTextColor: Colors.black,
+                    padding: EdgeInsets.all(8.0),
+                    splashColor: Colors.blueAccent,
+                    onPressed: () {
+                      /*...*/
+                    },
+                    child: Text(
+                      "Sleep Mode",
+                      style: TextStyle(fontSize: 20.0),
+                    ),
+                  )
+                ],
+              )
+          ),
+          Expanded( // queue bar
+              flex: 10,
+              child: Container(
+                  decoration: BoxDecoration(
+                      border: Border.all(color: Colors.blueAccent)
+                  ),
+                child: Row (
+                  children: <Widget>[
+                    Icon(
+                      Icons.queue_music,
+                      size: 40.0,
+                    ),
+                    Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Text(
+                              "Next: Sample Video Name 2 by Sample Artist 2",
+                            ),
+                          ],
+                        )
+                    ),
+                    Icon(
+                      Icons.keyboard_arrow_down,
+                      size: 40.0,
+                    ),
+                  ],
+                )
+              )
+          ),
+          /*
+          Expanded( // queue bar
+              flex: 10,
+              child: Row(
+                children: <Widget>[
+                  Icon(
+                    Icons.queue_music,
+                    size: 40.0,
+                  ),
+                  Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Text(
+                            "Next: Sample Video Name 2 by Sample Artist 2",
+                          ),
+                        ],
+                      )
+                  ),
+                  Icon(
+                    Icons.keyboard_arrow_down,
+                    size: 40.0,
+                  ),
+                ],
+              )
+          ),
+          */
+        ],
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
