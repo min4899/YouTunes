@@ -1,15 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class MusicPlayerPage extends StatefulWidget {
-  MusicPlayerPage({Key key, this.title}) : super(key: key);
+  MusicPlayerPage({Key key, this.videoId}) : super(key: key);
 
-  final String title;
+  final String videoId;
 
   @override
   _MusicPlayerState createState() => _MusicPlayerState();
 }
 
 class _MusicPlayerState extends State<MusicPlayerPage> {
+  YoutubePlayerController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = YoutubePlayerController(
+        initialVideoId: widget.videoId,
+        flags: YoutubePlayerFlags(
+        autoPlay: true,
+        mute: false,
+      )
+    );
+  }
+
   double _time = 0.0;
 
   @override
@@ -23,9 +38,11 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
                 children: <Widget>[
                   Container(
                     margin: EdgeInsets.only(left: 10),
-                    child: Icon(
-                      Icons.keyboard_arrow_down,
-                      size: 40.0,
+                    child: IconButton(
+                      icon: Icon(Icons.keyboard_arrow_down, size: 40.0),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
                     ),
                   ),
                   Expanded(
@@ -46,8 +63,17 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
+                  /*
                   Image(
                       image: AssetImage("assets/sampleimage.jpg")
+                  ),
+                   */
+                  YoutubePlayer (
+                    controller: _controller,
+                    showVideoProgressIndicator: false,
+                    onReady: () {
+                      print("Video " + widget.videoId + " is playing");
+                    },
                   ),
                 ],
               )
@@ -163,7 +189,7 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
                     padding: EdgeInsets.all(8.0),
                     splashColor: Colors.blueAccent,
                     onPressed: () {
-                      /*...*/
+                      print(widget.videoId);
                     },
                     child: Text(
                       "Sleep Mode",

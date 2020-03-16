@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:youtunes_project/music-player.dart';
 import 'package:youtunes_project/search.dart';
 
 void main() => runApp(MyApp());
@@ -31,26 +30,15 @@ class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
   static const TextStyle optionStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static List<Widget> _widgetOptions = <Widget>[
-    /*
     Text(
       'Index 0: Home',
       style: optionStyle,
     ),
-    Text(
-      'Index 1: Search',
-      style: optionStyle,
-    ),
+    SearchPage(),
     Text(
       'Index 2: Library',
       style: optionStyle,
     ),
-    */
-    Text(
-      'Index 0: Home',
-      style: optionStyle,
-    ),
-    SearchPage(title: "Search"),
-    MusicPlayerPage(title: "Music Player"),
   ];
 
   void _onItemTapped(int index) {
@@ -86,7 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
+        selectedItemColor: Colors.blueAccent,
         onTap: _onItemTapped,
       ),
     );

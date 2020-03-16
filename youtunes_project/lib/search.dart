@@ -1,120 +1,112 @@
 import 'package:flutter/material.dart';
+import 'package:youtunes_project/music-player.dart';
+import 'package:youtunes_project/models/video_model.dart';
+import 'package:youtunes_project/services/api_services.dart';
 
 class SearchPage extends StatefulWidget {
-  SearchPage({Key key, this.title}) : super(key: key);
-
-  final String title;
-
   @override
   _SearchState createState() => _SearchState();
 }
 
 class _SearchState extends State<SearchPage> {
+  TextEditingController _textController;
+  String _videoId;
+  List<Video> _videoItem;
+  bool _isLoading = false;
+  String _currentquery;
+
+  @override
+  void initState() {
+    super.initState();
+    _textController = TextEditingController();
+    //_listVideos("gamechops");
+  }
+
+  _listVideos(String q) async {
+    List<Video> temp = await APIService.instance.fetchVideos(query: q);
+    setState(() {
+      _videoItem = temp;
+    });
+  }
+
+  _buildVideo(Video video) {
+    return Container(
+      child: Card(
+        child: ListTile(
+          leading: Image.network(video.thumbnailUrl),
+          title: Text(video.title),
+          subtitle: Text(video.channelTitle!=null ? video.channelTitle:""),
+          trailing: Icon(Icons.more_vert),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => MusicPlayerPage(videoId: video.id)),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  _loadMoreVideos() async {
+    _isLoading = true;
+    List<Video> moreVideos = await APIService.instance.fetchVideos(query: _currentquery);
+    List<Video> allVideos = _videoItem..addAll(moreVideos);
+    setState(() {
+      _videoItem = allVideos;
+    });
+    _isLoading = false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        //title: Text("Search"),
-        actions: <Widget>[
-          IconButton(
-              icon: Icon(Icons.search),
-              onPressed: () {
-                showSearch(context: context, delegate: DataSearch());
-              })
+        title: Text("Search"),
+      ),
+      body: Stack(
+        children: <Widget>[
+          Container(
+            child: Column(
+              children: <Widget>[
+                TextFormField(
+                  decoration: const InputDecoration(
+                    hintText: "Search music",
+                  ),
+                  controller: _textController,
+                  onFieldSubmitted: (String q) {
+                    if(q != "") {
+                      _currentquery = q;
+                      _listVideos(_currentquery);
+                      //_textController.clear();
+                    }
+                  },
+                ),
+                _videoItem != null ?
+                Flexible(
+                  child: ListView.builder(
+                    padding: EdgeInsets.all(8.0),
+                    itemCount: _videoItem.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      Video video = _videoItem[index];
+                      return _buildVideo(video);
+                    },
+                  ),
+                )
+                : Container (
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Theme.of(context).primaryColor, // Red
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )
         ],
       ),
     );
   }
-}
 
-class DataSearch extends SearchDelegate<String> {
-  // hard coded autofill
-  final autofillSample = [
-    "pop",
-    "hiphop",
-    "rock",
-    "classical",
-    "jazz",
-    "folk",
-    "heavy metal",
-    "blues",
-    "country",
-    "punk rock",
-    "popular",
-  ];
-
-  // hard coded autofill
-  final recent = [
-    "pokemon",
-    "animal crossing",
-    "insaneintherain",
-    "gamechops mikel",
-  ];
-
-  // actions for app bar
-  @override
-  List<Widget> buildActions(BuildContext context) {
-    return [
-      IconButton(
-          icon: Icon(Icons.clear),
-          onPressed: () {
-            query = "";
-          })
-    ];
-    throw UnimplementedError();
-  }
-
-  // leading icon on the left of the app bar
-  @override
-  Widget buildLeading(BuildContext context) {
-    return IconButton(
-        icon: AnimatedIcon(
-          icon: AnimatedIcons.menu_arrow,
-          progress: transitionAnimation,
-        ),
-        onPressed: () {
-          close(context, null);
-        });
-    throw UnimplementedError();
-  }
-
-  // show some result based on selection
-  @override
-  Widget buildResults(BuildContext context) {
-    return Container(
-      height: 100.0,
-      child: Card (
-        child: Center (
-          child: Text(
-            query,
-            style: TextStyle(color: Colors.black),
-          ),
-        ),
-      ),
-    );
-    throw UnimplementedError();
-  }
-
-  // show when someone searches for something
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    // if field is empty, show recent searches, else autofill
-    final suggestionList = query.isEmpty
-        ? recent
-        : autofillSample.where((p) => p.startsWith(query)).toList();
-
-    // recommendations that show below search textfield
-    return ListView.builder(
-      itemBuilder: (context, index) => ListTile(
-        onTap: () {
-          query = suggestionList[index];
-          showResults(context);
-        },
-        leading: Icon(Icons.search),
-        title: Text(suggestionList[index]),
-      ),
-      itemCount: suggestionList.length,
-    );
-    throw UnimplementedError();
-  }
 }
