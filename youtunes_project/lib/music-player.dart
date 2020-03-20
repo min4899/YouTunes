@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:youtunes_project/services/api_services.dart';
+import 'package:youtunes_project/models/video_model.dart';
+import 'dart:async';
 
 class MusicPlayerPage extends StatefulWidget {
-  MusicPlayerPage({Key key, this.videoId}) : super(key: key);
+  //MusicPlayerPage({Key key, this.videoId}) : super(key: key);
+  MusicPlayerPage({Key key, this.video}) : super(key: key);
 
-  final String videoId;
+  //final String videoId;
+  final Video video;
 
   @override
   _MusicPlayerState createState() => _MusicPlayerState();
@@ -13,26 +18,92 @@ class MusicPlayerPage extends StatefulWidget {
 class _MusicPlayerState extends State<MusicPlayerPage> {
   YoutubePlayerController _controller;
 
+  Timer _everySecond;
+  double _time = 0.0;
+  String _timeString = "0:00";
+  bool _playing;
+
+  String _title;
+  String _author;
+  Duration _duration;
+  String _durationString = "";
+  double _durationSeconds = 0;
+
   @override
   void initState() {
     super.initState();
     _controller = YoutubePlayerController(
-        initialVideoId: widget.videoId,
-        flags: YoutubePlayerFlags(
-        autoPlay: true,
+      //initialVideoId: widget.videoId,
+      initialVideoId: widget.video.id,
+      flags: YoutubePlayerFlags(
+        autoPlay: false,
         mute: false,
-      )
+        hideControls: true,
+      ),
     );
+    _controller.value =
+        new YoutubePlayerValue(isPlaying: false, position: new Duration());
+    _playing = _controller.value.isPlaying;
+    _setVideoInfo();
+
+    _everySecond = Timer.periodic(Duration(milliseconds: 500), (Timer t) {
+      if(_playing) {
+        setState(() {
+          _time = _controller.value.position.inSeconds.toDouble();
+          //_timeString =  _durationToStringFormat(_controller.value.position.toString());
+        });
+      }
+    });
   }
 
-  double _time = 0.0;
+  void _setVideoInfo() {
+    setState(() {
+      _title = widget.video.title;
+      _author = widget.video.channelTitle;
+    });
+    _setDuration();
+  }
+
+  void _setDuration() async {
+    _duration = await APIService.instance.fetchDuration(widget.video.id);
+    setState(() {
+      _durationString = _durationToStringFormat(_duration.toString());
+    });
+
+    _durationSeconds = _duration.inSeconds.toDouble();
+  }
+
+  String _durationToStringFormat(String inputDurationString) {
+    inputDurationString = inputDurationString.replaceFirst("0:", "");
+    inputDurationString = inputDurationString.replaceFirst("00:", "");
+    if(inputDurationString[0] == '0')
+      inputDurationString = inputDurationString.substring(1);
+    int periodIndex = inputDurationString.indexOf(".");
+    inputDurationString = inputDurationString.substring(0, periodIndex);
+    return inputDurationString;
+  }
+
+  void _playpause() {
+    if (_playing) {
+      setState(() {
+        _playing = false;
+      });
+      _controller.pause();
+    } else {
+      setState(() {
+        _playing = true;
+      });
+      _controller.play();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
         children: <Widget>[
-          Expanded( // for top bar
+          Expanded(
+              // for top bar
               flex: 10,
               child: Row(
                 children: <Widget>[
@@ -45,9 +116,7 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
                       },
                     ),
                   ),
-                  Expanded(
-                      child: Row()
-                  ),
+                  Expanded(child: Row()),
                   Container(
                     margin: EdgeInsets.only(right: 10),
                     child: Icon(
@@ -56,29 +125,23 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
                     ),
                   ),
                 ],
-              )
-          ),
-          Expanded( // video
+              )),
+          Expanded(
+              // video
               flex: 40,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  /*
-                  Image(
-                      image: AssetImage("assets/sampleimage.jpg")
-                  ),
-                   */
-                  YoutubePlayer (
+                  YoutubePlayer(
                     controller: _controller,
-                    showVideoProgressIndicator: false,
                     onReady: () {
-                      print("Video " + widget.videoId + " is playing");
+                      print("Video " + widget.video.id + " is playing");
                     },
                   ),
                 ],
-              )
-          ),
-          Expanded( // video info, artist, like button, add button
+              )),
+          Expanded(
+              // video info, artist, like button, add button
               flex: 10,
               child: Row(
                 children: <Widget>[
@@ -90,21 +153,28 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
                     ),
                   ),
                   Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Text(
-                            "Video name",
-                            style: TextStyle(
-                              fontSize: 25,
-                            ),
+                      child: Container(
+                    margin: EdgeInsets.only(left: 10, right: 10),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          _title,
+                          maxLines: 1,
+                          textAlign: TextAlign.center,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 25,
                           ),
-                          Text(
-                            "Artist name",
-                          ),
-                        ],
-                      )
-                  ),
+                        ),
+                        Text(
+                          _author,
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                        ),
+                      ],
+                    ),
+                  )),
                   Container(
                     margin: EdgeInsets.only(right: 10),
                     child: Icon(
@@ -113,19 +183,24 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
                     ),
                   ),
                 ],
-              )
-          ),
-          Expanded( // video timestamp
+              )),
+          Expanded(
+              // video timestamp
               flex: 10,
               child: Column(
                 children: <Widget>[
-                  Slider( // timestamp slider
+                  Slider(
+                    // timestamp slider
                     value: _time,
+                    min: 0,
+                    max: _durationSeconds,
                     onChanged: (newTime) {
                       setState(() => _time = newTime);
+                      print(_time);
                     },
                   ),
-                  Expanded( // timestamp numbers
+                  Expanded(
+                      // timestamp numbers
                       flex: 10,
                       child: Row(
                         children: <Widget>[
@@ -136,23 +211,20 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
                               textAlign: TextAlign.left,
                             ),
                           ),
-                          Expanded(
-                              child: Row()
-                          ),
+                          Expanded(child: Row()),
                           Container(
                             margin: EdgeInsets.only(right: 25),
                             child: Text(
-                              "3:00",
+                              _durationString,
                               textAlign: TextAlign.right,
                             ),
                           ),
                         ],
-                      )
-                  ),
+                      )),
                 ],
-              )
-          ),
-          Expanded( // back, play/pause, skip buttons
+              )),
+          Expanded(
+              // back, play/pause, skip buttons
               flex: 10,
               child: Row(
                 children: <Widget>[
@@ -162,12 +234,25 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
                       size: 50.0,
                     ),
                   ),
-                  Expanded(
-                    child: Icon(
-                      Icons.play_arrow,
-                      size: 50.0,
-                    ),
-                  ),
+                  _playing
+                      ? Expanded(
+                          child: IconButton(
+                            icon: Icon(Icons.pause),
+                            iconSize: 50.0,
+                            onPressed: () {
+                              _playpause();
+                            },
+                          ),
+                        )
+                      : Expanded(
+                          child: IconButton(
+                            icon: Icon(Icons.play_arrow),
+                            iconSize: 50.0,
+                            onPressed: () {
+                              _playpause();
+                            },
+                          ),
+                        ),
                   Expanded(
                     child: Icon(
                       Icons.skip_next,
@@ -175,9 +260,9 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
                     ),
                   ),
                 ],
-              )
-          ),
-          Expanded( // sleep mode button
+              )),
+          Expanded(
+              // sleep mode button
               flex: 10,
               child: Column(
                 children: <Widget>[
@@ -189,7 +274,12 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
                     padding: EdgeInsets.all(8.0),
                     splashColor: Colors.blueAccent,
                     onPressed: () {
-                      print(widget.videoId);
+                      print(widget.video.id);
+                      print("Video is playing: " + _controller.value.isPlaying.toString());
+                      print("Position: " + _controller.value.position.toString());
+                      print("Position in Seconds: " + _time.toString());
+                      print("Total Duration: " + _durationString);
+                      print("Total Duration: " + _duration.toString());
                     },
                     child: Text(
                       "Sleep Mode",
@@ -197,15 +287,14 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
                     ),
                   )
                 ],
-              )
-          ),
-          Expanded( // queue bar
+              )),
+          Expanded(
+              // queue bar
               flex: 10,
               child: Container(
                   decoration: BoxDecoration(
-                      border: Border.all(color: Colors.blueAccent)
-                  ),
-                  child: Row (
+                      border: Border.all(color: Colors.blueAccent)),
+                  child: Row(
                     children: <Widget>[
                       Container(
                         margin: EdgeInsets.only(left: 10),
@@ -216,14 +305,13 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
                       ),
                       Expanded(
                           child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Text(
-                                "Next: Sample Video Name 2 by Sample Artist 2",
-                              ),
-                            ],
-                          )
-                      ),
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Text(
+                            "Next: Sample Video Name 2 by Sample Artist 2",
+                          ),
+                        ],
+                      )),
                       Container(
                         margin: EdgeInsets.only(right: 10),
                         child: Icon(
@@ -232,9 +320,7 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
                         ),
                       ),
                     ],
-                  )
-              )
-          ),
+                  ))),
         ],
       ),
     );

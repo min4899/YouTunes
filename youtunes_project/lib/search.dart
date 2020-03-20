@@ -14,6 +14,7 @@ class _SearchState extends State<SearchPage> {
   List<Video> _videoItem;
   bool _isLoading = false;
   String _currentquery;
+  int _searchLimit = 30;
 
   @override
   void initState() {
@@ -35,13 +36,14 @@ class _SearchState extends State<SearchPage> {
         child: ListTile(
           leading: Image.network(video.thumbnailUrl),
           title: Text(video.title),
-          subtitle: Text(video.channelTitle!=null ? video.channelTitle:""),
+          subtitle: Text(video.channelTitle != null ? video.channelTitle : ""),
           trailing: Icon(Icons.more_vert),
           onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => MusicPlayerPage(videoId: video.id)),
+                  //builder: (context) => MusicPlayerPage(videoId: video.id)),
+                  builder: (context) => MusicPlayerPage(video: video)),
             );
           },
         ),
@@ -51,7 +53,8 @@ class _SearchState extends State<SearchPage> {
 
   _loadMoreVideos() async {
     _isLoading = true;
-    List<Video> moreVideos = await APIService.instance.fetchVideos(query: _currentquery);
+    List<Video> moreVideos =
+        await APIService.instance.fetchVideos(query: _currentquery);
     List<Video> allVideos = _videoItem..addAll(moreVideos);
     setState(() {
       _videoItem = allVideos;
@@ -76,31 +79,42 @@ class _SearchState extends State<SearchPage> {
                   ),
                   controller: _textController,
                   onFieldSubmitted: (String q) {
-                    if(q != "") {
+                    if (q != "") {
                       _currentquery = q;
                       _listVideos(_currentquery);
                       //_textController.clear();
                     }
                   },
                 ),
-                _videoItem != null ?
-                Flexible(
-                  child: ListView.builder(
-                    padding: EdgeInsets.all(8.0),
-                    itemCount: _videoItem.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      Video video = _videoItem[index];
-                      return _buildVideo(video);
-                    },
-                  ),
-                )
-                : Container (
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      Theme.of(context).primaryColor, // Red
-                    ),
-                  ),
-                ),
+                _videoItem != null
+                    ? NotificationListener<ScrollNotification>(
+                        onNotification: (ScrollNotification scrollDetails) {
+                          if (!_isLoading &&
+                              _videoItem.length != _searchLimit &&
+                              scrollDetails.metrics.pixels ==
+                                  scrollDetails.metrics.maxScrollExtent) {
+                            _loadMoreVideos();
+                          }
+                          return false;
+                        },
+                        child: Flexible(
+                          child: ListView.builder(
+                            padding: EdgeInsets.all(8.0),
+                            itemCount: _videoItem.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              Video video = _videoItem[index];
+                              return _buildVideo(video);
+                            },
+                          ),
+                        )
+                    )
+                    : Container(
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Theme.of(context).primaryColor, // Red
+                          ),
+                        ),
+                      ),
               ],
             ),
           )
@@ -108,5 +122,4 @@ class _SearchState extends State<SearchPage> {
       ),
     );
   }
-
 }
