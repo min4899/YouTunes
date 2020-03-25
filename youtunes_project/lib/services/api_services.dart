@@ -30,7 +30,7 @@ class APIService {
       '/youtube/v3/search',
       parameters,
     );
-    print(uri);
+    //print(uri);
 
     Map<String, String> headers = {
       HttpHeaders.contentTypeHeader: 'application/json',
@@ -39,7 +39,7 @@ class APIService {
     // Get Videos
     var response = await http.get(uri, headers: headers);
 
-    print(response);
+    //print(response);
 
     if (response.statusCode == 200) {
       var data = json.decode(response.body);
@@ -71,7 +71,7 @@ class APIService {
       '/youtube/v3/videos',
       parameters,
     );
-    print(uri);
+    //print(uri);
 
     Map<String, String> headers = {
       HttpHeaders.contentTypeHeader: 'application/json',
@@ -87,7 +87,7 @@ class APIService {
 
       String iso = data["items"][0]["contentDetails"]["duration"];
 
-      int secondsFromIso = convertYoutubeDurationToSeconds(iso);
+      int secondsFromIso = _convertYoutubeDurationToSeconds(iso);
 
       Duration duration = new Duration(seconds: secondsFromIso);
       return duration;
@@ -97,7 +97,7 @@ class APIService {
     }
   }
 
-  int convertYoutubeDurationToSeconds(String duration){
+  int _convertYoutubeDurationToSeconds(String duration){
     int returnSeconds = 0;
 
     var dayTime = duration.split('T');
@@ -107,7 +107,7 @@ class APIService {
     String digitString = "";
     while(index < time.length)
     {
-      if(isDigit(time, index)) // digit, add to digit string
+      if(_isDigit(time, index)) // digit, add to digit string
           {
         digitString += time[index];
       }
@@ -133,5 +133,5 @@ class APIService {
     return returnSeconds;
   }
 
-  bool isDigit(String s, int idx) => (s.codeUnitAt(idx) ^ 0x30) <= 9;
+  bool _isDigit(String s, int idx) => (s.codeUnitAt(idx) ^ 0x30) <= 9;
 }

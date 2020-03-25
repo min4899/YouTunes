@@ -68,56 +68,60 @@ class _SearchState extends State<SearchPage> {
       appBar: AppBar(
         title: Text("Search"),
       ),
-      body: Stack(
+      body: Column(
         children: <Widget>[
           Container(
-            child: Column(
-              children: <Widget>[
-                TextFormField(
-                  decoration: const InputDecoration(
-                    hintText: "Search music",
-                  ),
-                  controller: _textController,
-                  onFieldSubmitted: (String q) {
-                    if (q != "") {
-                      _currentquery = q;
-                      _listVideos(_currentquery);
-                      //_textController.clear();
-                    }
-                  },
-                ),
-                _videoItem != null
-                    ? NotificationListener<ScrollNotification>(
-                        onNotification: (ScrollNotification scrollDetails) {
-                          if (!_isLoading &&
-                              _videoItem.length != _searchLimit &&
-                              scrollDetails.metrics.pixels ==
-                                  scrollDetails.metrics.maxScrollExtent) {
-                            _loadMoreVideos();
-                          }
-                          return false;
-                        },
-                        child: Flexible(
-                          child: ListView.builder(
-                            padding: EdgeInsets.all(8.0),
-                            itemCount: _videoItem.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              Video video = _videoItem[index];
-                              return _buildVideo(video);
-                            },
-                          ),
-                        )
-                    )
-                    : Container(
-                        child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Theme.of(context).primaryColor, // Red
-                          ),
-                        ),
-                      ),
-              ],
+            margin: EdgeInsets.only(left: 10, right: 10),
+            child: TextFormField(
+              decoration: const InputDecoration(
+                hintText: "Search music",
+              ),
+              controller: _textController,
+              onFieldSubmitted: (String q) {
+                if (q != "") {
+                  _currentquery = q;
+                  _listVideos(_currentquery);
+                  //_textController.clear();
+                }
+              },
             ),
-          )
+          ),
+          _videoItem != null
+              ? NotificationListener<ScrollNotification>(
+                  onNotification: (ScrollNotification scrollDetails) {
+                    if (!_isLoading &&
+                        _videoItem.length != _searchLimit &&
+                        scrollDetails.metrics.pixels ==
+                            scrollDetails.metrics.maxScrollExtent) {
+                      _loadMoreVideos();
+                    }
+                    return false;
+                  },
+                  child: Flexible(
+                    child: ListView.builder(
+                      padding: EdgeInsets.all(8.0),
+                      itemCount: _videoItem.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        Video video = _videoItem[index];
+                        return _buildVideo(video);
+                      },
+                    ),
+                  ))
+              : Expanded(
+                  child: Container(),
+                ),
+                Center(
+                  //width: 100,
+                  //height: 100,
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Theme.of(context).primaryColor, // Red
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Container(),
+                ),
         ],
       ),
     );

@@ -1,8 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:youtunes_project/services/api_services.dart';
 import 'package:youtunes_project/models/video_model.dart';
-import 'dart:async';
 
 class MusicPlayerPage extends StatefulWidget {
   //MusicPlayerPage({Key key, this.videoId}) : super(key: key);
@@ -18,16 +18,14 @@ class MusicPlayerPage extends StatefulWidget {
 class _MusicPlayerState extends State<MusicPlayerPage> {
   YoutubePlayerController _controller;
 
-  Timer _everySecond;
-  double _time = 0.0;
-  String _timeString = "0:00";
-  bool _playing;
-
+  //bool _playing;
   String _title;
   String _author;
   Duration _duration;
   String _durationString = "";
-  double _durationSeconds = 0;
+
+  PlayPauseButton button;
+  RemainingDuration duration;
 
   @override
   void initState() {
@@ -41,19 +39,10 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
         hideControls: true,
       ),
     );
-    _controller.value =
-        new YoutubePlayerValue(isPlaying: false, position: new Duration());
-    _playing = _controller.value.isPlaying;
+    button = PlayPauseButton(controller: _controller);
+    //_controller.value = new YoutubePlayerValue(isPlaying: false, position: new Duration());
+    //_playing = _controller.value.isPlaying;
     _setVideoInfo();
-
-    _everySecond = Timer.periodic(Duration(milliseconds: 500), (Timer t) {
-      if(_playing) {
-        setState(() {
-          _time = _controller.value.position.inSeconds.toDouble();
-          //_timeString =  _durationToStringFormat(_controller.value.position.toString());
-        });
-      }
-    });
   }
 
   void _setVideoInfo() {
@@ -61,7 +50,7 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
       _title = widget.video.title;
       _author = widget.video.channelTitle;
     });
-    _setDuration();
+    //_setDuration();
   }
 
   void _setDuration() async {
@@ -69,32 +58,16 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
     setState(() {
       _durationString = _durationToStringFormat(_duration.toString());
     });
-
-    _durationSeconds = _duration.inSeconds.toDouble();
   }
 
   String _durationToStringFormat(String inputDurationString) {
     inputDurationString = inputDurationString.replaceFirst("0:", "");
     inputDurationString = inputDurationString.replaceFirst("00:", "");
-    if(inputDurationString[0] == '0')
+    if (inputDurationString[0] == '0')
       inputDurationString = inputDurationString.substring(1);
     int periodIndex = inputDurationString.indexOf(".");
     inputDurationString = inputDurationString.substring(0, periodIndex);
     return inputDurationString;
-  }
-
-  void _playpause() {
-    if (_playing) {
-      setState(() {
-        _playing = false;
-      });
-      _controller.pause();
-    } else {
-      setState(() {
-        _playing = true;
-      });
-      _controller.play();
-    }
   }
 
   @override
@@ -106,29 +79,33 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
               // for top bar
               flex: 10,
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Container(
                     margin: EdgeInsets.only(left: 10),
+                    alignment: Alignment.bottomCenter,
                     child: IconButton(
-                      icon: Icon(Icons.keyboard_arrow_down, size: 40.0),
+                      icon: Icon(Icons.keyboard_arrow_down),
+                      iconSize: 40,
                       onPressed: () {
                         Navigator.pop(context);
                       },
                     ),
                   ),
-                  Expanded(child: Row()),
                   Container(
                     margin: EdgeInsets.only(right: 10),
-                    child: Icon(
-                      Icons.more_vert,
-                      size: 40.0,
+                    alignment: Alignment.bottomCenter,
+                    child: IconButton(
+                      icon: Icon(Icons.more_vert),
+                      iconSize: 40,
+                      onPressed: () {},
                     ),
                   ),
                 ],
               )),
           Expanded(
               // video
-              flex: 40,
+              flex: 38,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
@@ -136,20 +113,26 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
                     controller: _controller,
                     onReady: () {
                       print("Video " + widget.video.id + " is playing");
+                      setState(() {
+                        button = PlayPauseButton(controller: _controller);
+                        _controller.play();
+                      });
                     },
+                    onEnded: (YoutubeMetaData) {},
                   ),
                 ],
               )),
           Expanded(
               // video info, artist, like button, add button
-              flex: 10,
+              flex: 12,
               child: Row(
                 children: <Widget>[
                   Container(
                     margin: EdgeInsets.only(left: 10),
-                    child: Icon(
-                      Icons.favorite_border,
-                      size: 40.0,
+                    child: IconButton(
+                      icon: Icon(Icons.favorite_border),
+                      iconSize: 40,
+                      onPressed: () {},
                     ),
                   ),
                   Expanded(
@@ -177,87 +160,71 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
                   )),
                   Container(
                     margin: EdgeInsets.only(right: 10),
-                    child: Icon(
-                      Icons.playlist_add,
-                      size: 40.0,
+                    child: IconButton(
+                      icon: Icon(Icons.playlist_add),
+                      iconSize: 40,
+                      onPressed: () {},
                     ),
                   ),
                 ],
               )),
           Expanded(
               // video timestamp
-              flex: 10,
+              flex: 6,
               child: Column(
                 children: <Widget>[
-                  Slider(
-                    // timestamp slider
-                    value: _time,
-                    min: 0,
-                    max: _durationSeconds,
-                    onChanged: (newTime) {
-                      setState(() => _time = newTime);
-                      print(_time);
-                    },
+                  Container(
+                    margin: EdgeInsets.only(left: 20, right: 20),
+                    child: ProgressBar(
+                      controller: _controller,
+                    ),
                   ),
                   Expanded(
                       // timestamp numbers
-                      flex: 10,
                       child: Row(
-                        children: <Widget>[
-                          Container(
-                            margin: EdgeInsets.only(left: 25),
-                            child: Text(
-                              "0:00",
-                              textAlign: TextAlign.left,
-                            ),
-                          ),
-                          Expanded(child: Row()),
-                          Container(
-                            margin: EdgeInsets.only(right: 25),
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Container(
+                        margin: EdgeInsets.only(left: 25),
+                        child: CurrentPosition(
+                          controller: _controller,
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(right: 25),
+                        /*
                             child: Text(
                               _durationString,
                               textAlign: TextAlign.right,
                             ),
-                          ),
-                        ],
-                      )),
+                             */
+                        child: duration = RemainingDuration(
+                          controller: _controller,
+                        ),
+                      ),
+                    ],
+                  )),
                 ],
               )),
           Expanded(
               // back, play/pause, skip buttons
-              flex: 10,
+              flex: 12,
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
-                  Expanded(
-                    child: Icon(
-                      Icons.skip_previous,
-                      size: 50.0,
-                    ),
+                  IconButton(
+                    icon: Icon(Icons.skip_previous),
+                    iconSize: 50,
+                    onPressed: () {},
                   ),
-                  _playing
-                      ? Expanded(
-                          child: IconButton(
-                            icon: Icon(Icons.pause),
-                            iconSize: 50.0,
-                            onPressed: () {
-                              _playpause();
-                            },
-                          ),
-                        )
-                      : Expanded(
-                          child: IconButton(
-                            icon: Icon(Icons.play_arrow),
-                            iconSize: 50.0,
-                            onPressed: () {
-                              _playpause();
-                            },
-                          ),
-                        ),
-                  Expanded(
-                    child: Icon(
-                      Icons.skip_next,
-                      size: 50.0,
-                    ),
+                  Container(
+                    alignment: Alignment.center,
+                    child: button = PlayPauseButton(controller: _controller),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.skip_next),
+                    iconSize: 50,
+                    onPressed: () {},
                   ),
                 ],
               )),
@@ -265,6 +232,7 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
               // sleep mode button
               flex: 10,
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   FlatButton(
                     color: Colors.blue,
@@ -275,9 +243,7 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
                     splashColor: Colors.blueAccent,
                     onPressed: () {
                       print(widget.video.id);
-                      print("Video is playing: " + _controller.value.isPlaying.toString());
-                      print("Position: " + _controller.value.position.toString());
-                      print("Position in Seconds: " + _time.toString());
+                      //print("Video is playing: " + _controller.value.isPlaying.toString());
                       print("Total Duration: " + _durationString);
                       print("Total Duration: " + _duration.toString());
                     },
@@ -290,7 +256,7 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
               )),
           Expanded(
               // queue bar
-              flex: 10,
+              flex: 8,
               child: Container(
                   decoration: BoxDecoration(
                       border: Border.all(color: Colors.blueAccent)),
