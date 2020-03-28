@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:youtunes_project/homescreen.dart';
-import 'package:youtunes_project/search.dart';
+import 'file:///C:/Users/min48/AndroidStudioProjects/YouTunes/youtunes_project/lib/screens/homescreen.dart';
+import 'file:///C:/Users/min48/AndroidStudioProjects/YouTunes/youtunes_project/lib/screens/search.dart';
 
 void main() => runApp(MyApp());
 
@@ -29,12 +29,6 @@ class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
   static const TextStyle optionStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static List<Widget> _widgetOptions = <Widget>[
-    /*
-    Text(
-      'Index 0: Home',
-      style: optionStyle,
-    ),
-     */
     HomePage(),
     SearchPage(),
     Text(

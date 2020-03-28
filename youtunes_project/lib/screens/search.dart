@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:youtunes_project/music-player.dart';
+import 'file:///C:/Users/min48/AndroidStudioProjects/YouTunes/youtunes_project/lib/screens/music-player.dart';
 import 'package:youtunes_project/models/video_model.dart';
 import 'package:youtunes_project/services/api_services.dart';
 
@@ -86,7 +86,7 @@ class _SearchState extends State<SearchPage> {
               },
             ),
           ),
-          _videoItem != null
+          _videoItem != null && _videoItem.length > 0
               ? NotificationListener<ScrollNotification>(
                   onNotification: (ScrollNotification scrollDetails) {
                     if (!_isLoading &&
@@ -108,19 +108,15 @@ class _SearchState extends State<SearchPage> {
                     ),
                   ))
               : Expanded(
-                  child: Container(),
-                ),
-                Center(
-                  //width: 100,
-                  //height: 100,
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      Theme.of(context).primaryColor, // Red
+                  child: Center(
+                    //width: 100,
+                    //height: 100,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Theme.of(context).primaryColor, // Red
+                      ),
                     ),
                   ),
-                ),
-                Expanded(
-                  child: Container(),
                 ),
         ],
       ),

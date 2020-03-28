@@ -3,12 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:youtunes_project/services/api_services.dart';
 import 'package:youtunes_project/models/video_model.dart';
+import 'package:youtunes_project/models/queue.dart';
 
 class MusicPlayerPage extends StatefulWidget {
-  //MusicPlayerPage({Key key, this.videoId}) : super(key: key);
   MusicPlayerPage({Key key, this.video}) : super(key: key);
 
-  //final String videoId;
   final Video video;
 
   @override
@@ -18,14 +17,13 @@ class MusicPlayerPage extends StatefulWidget {
 class _MusicPlayerState extends State<MusicPlayerPage> {
   YoutubePlayerController _controller;
 
-  //bool _playing;
   String _title;
   String _author;
   Duration _duration;
   String _durationString = "";
 
-  PlayPauseButton button;
-  RemainingDuration duration;
+  PlayPauseButton _playPauseButton;
+  RemainingDuration _remainingDuration;
 
   @override
   void initState() {
@@ -39,10 +37,10 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
         hideControls: true,
       ),
     );
-    button = PlayPauseButton(controller: _controller);
-    //_controller.value = new YoutubePlayerValue(isPlaying: false, position: new Duration());
-    //_playing = _controller.value.isPlaying;
+    _playPauseButton = PlayPauseButton(controller: _controller);
+    _controller.value = new YoutubePlayerValue(isPlaying: false, position: new Duration());
     _setVideoInfo();
+    _setQueue();
   }
 
   void _setVideoInfo() {
@@ -53,6 +51,40 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
     //_setDuration();
   }
 
+  void _setQueue() async {
+    Queue.instance.videos = await APIService.instance.fetchRelated(id: widget.video.id);
+    Queue.instance.videos.insert(0, widget.video);
+    Queue.instance.currentIndex = 0;
+    Queue.instance.printQueue();
+  }
+
+  void _previousVideo() {
+    if(Queue.instance.currentIndex > 0) {
+      Queue.instance.currentIndex--;
+      _controller.load(Queue.instance.videos[Queue.instance.currentIndex].id);
+      setState(() {
+        _title = Queue.instance.videos[Queue.instance.currentIndex].title;
+        _author = Queue.instance.videos[Queue.instance.currentIndex].channelTitle;
+      });
+    }
+    else
+      print("Already at the start of queue!");
+  }
+
+  void _nextVideo() {
+    if(Queue.instance.currentIndex < Queue.instance.videos.length-1) {
+      Queue.instance.currentIndex++;
+      _controller.load(Queue.instance.videos[Queue.instance.currentIndex].id);
+      setState(() {
+        _title = Queue.instance.videos[Queue.instance.currentIndex].title;
+        _author = Queue.instance.videos[Queue.instance.currentIndex].channelTitle;
+      });
+    }
+    else
+      print("No more videos left!");
+  }
+
+  /*
   void _setDuration() async {
     _duration = await APIService.instance.fetchDuration(widget.video.id);
     setState(() {
@@ -69,6 +101,7 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
     inputDurationString = inputDurationString.substring(0, periodIndex);
     return inputDurationString;
   }
+  */
 
   @override
   Widget build(BuildContext context) {
@@ -114,11 +147,13 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
                     onReady: () {
                       print("Video " + widget.video.id + " is playing");
                       setState(() {
-                        button = PlayPauseButton(controller: _controller);
+                        _playPauseButton = PlayPauseButton(controller: _controller);
                         _controller.play();
                       });
                     },
-                    onEnded: (YoutubeMetaData) {},
+                    onEnded: (YoutubeMetaData) {
+                      _nextVideo();
+                    },
                   ),
                 ],
               )),
@@ -153,6 +188,7 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
                         Text(
                           _author,
                           textAlign: TextAlign.center,
+                          overflow: TextOverflow.fade,
                           maxLines: 1,
                         ),
                       ],
@@ -198,7 +234,7 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
                               textAlign: TextAlign.right,
                             ),
                              */
-                        child: duration = RemainingDuration(
+                        child: _remainingDuration = RemainingDuration(
                           controller: _controller,
                         ),
                       ),
@@ -215,16 +251,25 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
                   IconButton(
                     icon: Icon(Icons.skip_previous),
                     iconSize: 50,
-                    onPressed: () {},
+                    onPressed: () {
+                      if(_controller.value.position.inSeconds >= 5.0) {
+                        _controller.seekTo(new Duration());
+                      }
+                      else {
+                        _previousVideo();
+                      }
+                    },
                   ),
                   Container(
                     alignment: Alignment.center,
-                    child: button = PlayPauseButton(controller: _controller),
+                    child: _playPauseButton = PlayPauseButton(controller: _controller),
                   ),
                   IconButton(
                     icon: Icon(Icons.skip_next),
                     iconSize: 50,
-                    onPressed: () {},
+                    onPressed: () {
+                      _nextVideo();
+                    },
                   ),
                 ],
               )),
@@ -242,10 +287,9 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
                     padding: EdgeInsets.all(8.0),
                     splashColor: Colors.blueAccent,
                     onPressed: () {
-                      print(widget.video.id);
-                      //print("Video is playing: " + _controller.value.isPlaying.toString());
-                      print("Total Duration: " + _durationString);
-                      print("Total Duration: " + _duration.toString());
+                      print("video id: " + widget.video.id);
+                      print("Video is playing: " + _controller.value.isPlaying.toString());
+                      Queue.instance.printQueue();
                     },
                     child: Text(
                       "Sleep Mode",
