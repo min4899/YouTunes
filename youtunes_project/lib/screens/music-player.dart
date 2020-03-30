@@ -17,19 +17,16 @@ class MusicPlayerPage extends StatefulWidget {
 class _MusicPlayerState extends State<MusicPlayerPage> {
   YoutubePlayerController _controller;
 
+  bool _playing = true;
+
   String _title;
   String _author;
-  Duration _duration;
-  String _durationString = "";
-
-  PlayPauseButton _playPauseButton;
-  RemainingDuration _remainingDuration;
 
   @override
   void initState() {
     super.initState();
+
     _controller = YoutubePlayerController(
-      //initialVideoId: widget.videoId,
       initialVideoId: widget.video.id,
       flags: YoutubePlayerFlags(
         autoPlay: false,
@@ -37,51 +34,76 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
         hideControls: true,
       ),
     );
-    _playPauseButton = PlayPauseButton(controller: _controller);
     _controller.value = new YoutubePlayerValue(isPlaying: false, position: new Duration());
-    _setVideoInfo();
+    _setVideoInfo(widget.video.title, widget.video.channelTitle);
     _setQueue();
   }
 
-  void _setVideoInfo() {
+  void _setVideoInfo(String title, String channelTitle) {
     setState(() {
-      _title = widget.video.title;
-      _author = widget.video.channelTitle;
+      _title = title;
+      _author = channelTitle;
     });
     //_setDuration();
   }
 
+  void _updatePlayPauseButton()
+  {
+    // was playing, pause video
+    if(_controller.value.isPlaying) {
+      _controller.pause();
+      setState(() {
+        _playing = false;
+      });
+    }
+    // was paused, play video
+    else {
+      _controller.play();
+      setState(() {
+        _playing = true;
+      });
+    }
+  }
+
   void _setQueue() async {
-    Queue.instance.videos = await APIService.instance.fetchRelated(id: widget.video.id);
+    //Queue.instance.videos = await APIService.instance.fetchRelated(id: widget.video.id);
     Queue.instance.videos.insert(0, widget.video);
     Queue.instance.currentIndex = 0;
     Queue.instance.printQueue();
   }
 
   void _previousVideo() {
-    if(Queue.instance.currentIndex > 0) {
+    if (Queue.instance.currentIndex > 0) {
       Queue.instance.currentIndex--;
       _controller.load(Queue.instance.videos[Queue.instance.currentIndex].id);
       setState(() {
         _title = Queue.instance.videos[Queue.instance.currentIndex].title;
         _author = Queue.instance.videos[Queue.instance.currentIndex].channelTitle;
       });
-    }
-    else
+      _controller.play();
+      _playing = true;
+      print("PLAYING PREVIOUS SONG");
+    } else
       print("Already at the start of queue!");
   }
 
   void _nextVideo() {
-    if(Queue.instance.currentIndex < Queue.instance.videos.length-1) {
+    if (Queue.instance.currentIndex < Queue.instance.videos.length - 1) {
       Queue.instance.currentIndex++;
       _controller.load(Queue.instance.videos[Queue.instance.currentIndex].id);
       setState(() {
         _title = Queue.instance.videos[Queue.instance.currentIndex].title;
         _author = Queue.instance.videos[Queue.instance.currentIndex].channelTitle;
       });
-    }
-    else
+      _controller.play();
+      _playing = true;
+      print("PLAYING NEXT SONG");
+    } else
       print("No more videos left!");
+  }
+
+  void playPause() {
+
   }
 
   /*
@@ -145,11 +167,9 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
                   YoutubePlayer(
                     controller: _controller,
                     onReady: () {
-                      print("Video " + widget.video.id + " is playing");
-                      setState(() {
-                        _playPauseButton = PlayPauseButton(controller: _controller);
-                        _controller.play();
-                      });
+                      print("Video player loaded. Playing video.");
+                      _controller.play();
+                      _playing = true;
                     },
                     onEnded: (YoutubeMetaData) {
                       _nextVideo();
@@ -228,13 +248,7 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
                       ),
                       Container(
                         margin: EdgeInsets.only(right: 25),
-                        /*
-                            child: Text(
-                              _durationString,
-                              textAlign: TextAlign.right,
-                            ),
-                             */
-                        child: _remainingDuration = RemainingDuration(
+                        child: RemainingDuration(
                           controller: _controller,
                         ),
                       ),
@@ -252,17 +266,33 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
                     icon: Icon(Icons.skip_previous),
                     iconSize: 50,
                     onPressed: () {
-                      if(_controller.value.position.inSeconds >= 5.0) {
+                      if (_controller.value.position.inSeconds >= 5.0) {
                         _controller.seekTo(new Duration());
-                      }
-                      else {
+                        _updatePlayPauseButton();
+                      } else {
                         _previousVideo();
                       }
                     },
                   ),
                   Container(
                     alignment: Alignment.center,
-                    child: _playPauseButton = PlayPauseButton(controller: _controller),
+                    //child: _playPauseButton = PlayPauseButton(controller: _controller),
+                    child:
+                    _playing ?
+                    IconButton (
+                      iconSize: 50,
+                      icon: Icon(Icons.pause),
+                      onPressed: () {
+                        _updatePlayPauseButton();
+                      },
+                    ) :
+                    IconButton (
+                      iconSize: 50,
+                      icon: Icon(Icons.play_arrow),
+                      onPressed: () {
+                        _updatePlayPauseButton();
+                      },
+                    )
                   ),
                   IconButton(
                     icon: Icon(Icons.skip_next),
@@ -288,7 +318,8 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
                     splashColor: Colors.blueAccent,
                     onPressed: () {
                       print("video id: " + widget.video.id);
-                      print("Video is playing: " + _controller.value.isPlaying.toString());
+                      print("Video is playing: " +
+                          _controller.value.isPlaying.toString());
                       Queue.instance.printQueue();
                     },
                     child: Text(

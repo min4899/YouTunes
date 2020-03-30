@@ -5,8 +5,14 @@ class Queue {
   Queue._instantiate();
 
   static Queue instance = Queue._instantiate();
-  List<Video> videos;
-  int currentIndex;
+  int currentIndex = 0;
+  List<Video> videos = [
+    Video(id: "eaMpXK8cpVM", title: "Fairy Fountain", thumbnailUrl: "https://i.ytimg.com/vi/eaMpXK8cpVM/mqdefault.jpg", channelTitle: "GameChops - Topic"),
+    Video(id: "xh5dV3un924", title: "Song of Storms", thumbnailUrl: "https://i.ytimg.com/vi/xh5dV3un924/mqdefault.jpg", channelTitle: "GameChops - Topic"),
+    Video(id: "dCUFw2Hfs7Q", title: "Ecruteak City", thumbnailUrl: "https://i.ytimg.com/vi/dCUFw2Hfs7Q/mqdefault.jpg", channelTitle: "GameChops - Topic"),
+    Video(id: "xQZbODfDiag", title: "Pokémon League", thumbnailUrl: "https://i.ytimg.com/vi/xQZbODfDiag/mqdefault.jpg", channelTitle: "GameChops - Topic"),
+    Video(id: "GRU15XVAXAg", title: "Zelda ▸ Lost Woods ~ Chuck None Remix", thumbnailUrl: "https://i.ytimg.com/vi/GRU15XVAXAg/mqdefault.jpg", channelTitle: "GameChops")
+  ];
 
   void printQueue() {
     print("Currently playing : " + currentIndex.toString() + ". " + videos[currentIndex].title);

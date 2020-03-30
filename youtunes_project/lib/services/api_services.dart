@@ -5,6 +5,8 @@ import 'package:youtunes_project/models/video_model.dart';
 import 'package:youtunes_project/models/video_model2.dart';
 import 'package:youtunes_project/keys.dart';
 
+// QUOTA LIMIT OF 10,000 UNITS EACH DAY
+
 class APIService {
   APIService._instantiate();
 

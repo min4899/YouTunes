@@ -20,7 +20,7 @@ class _HomeState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _listTrendingVideos();
+    //_listTrendingVideos();
     setState(() {
       _charts = [
         "Top Songs Global",
@@ -85,10 +85,12 @@ class _HomeState extends State<HomePage> {
               },
             ),
           ),
+          /*
           ContentScroll(
             title: "Trending",
             videos: _trendingVideos,
           ),
+          */
         ],
       ),
     );

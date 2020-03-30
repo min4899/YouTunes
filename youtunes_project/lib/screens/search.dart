@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'file:///C:/Users/min48/AndroidStudioProjects/YouTunes/youtunes_project/lib/screens/music-player.dart';
 import 'package:youtunes_project/models/video_model.dart';
 import 'package:youtunes_project/services/api_services.dart';
+import 'package:youtunes_project/models/queue.dart';
 
 class SearchPage extends StatefulWidget {
   @override
@@ -106,7 +107,7 @@ class _SearchState extends State<SearchPage> {
                         return _buildVideo(video);
                       },
                     ),
-                  ))
+                  ),)
               : Expanded(
                   child: Center(
                     //width: 100,
@@ -119,6 +120,12 @@ class _SearchState extends State<SearchPage> {
                   ),
                 ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton (
+        child: Icon(Icons.play_arrow),
+        onPressed: () {
+          Queue.instance.printQueue();
+        },
       ),
     );
   }
