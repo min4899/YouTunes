@@ -14,24 +14,26 @@ class _SearchState extends State<SearchPage> {
   String _videoId;
   List<Video> _videoItem;
   bool _isLoading = false;
-  String _currentquery;
+  String _currentQuery;
   int _searchLimit = 30;
+
+  bool _buttonFlag = false;
 
   @override
   void initState() {
     super.initState();
     _textController = TextEditingController();
-    //_listVideos("gamechops");
   }
 
   _listVideos(String q) async {
     List<Video> temp = await APIService.instance.fetchVideos(query: q);
     setState(() {
       _videoItem = temp;
+      _buttonFlag = true;
     });
   }
 
-  _buildVideo(Video video) {
+  _buildVideo(Video video, int index) {
     return Container(
       child: Card(
         child: ListTile(
@@ -40,11 +42,12 @@ class _SearchState extends State<SearchPage> {
           subtitle: Text(video.channelTitle != null ? video.channelTitle : ""),
           trailing: Icon(Icons.more_vert),
           onTap: () {
+            Queue queue = new Queue(index, _videoItem); // TEST
             Navigator.push(
               context,
               MaterialPageRoute(
-                  //builder: (context) => MusicPlayerPage(videoId: video.id)),
-                  builder: (context) => MusicPlayerPage(video: video)),
+                  //builder: (context) => MusicPlayerPage(video: video)),
+                  builder: (context) => MusicPlayerPage(queue: queue)), // TEST
             );
           },
         ),
@@ -55,7 +58,7 @@ class _SearchState extends State<SearchPage> {
   _loadMoreVideos() async {
     _isLoading = true;
     List<Video> moreVideos =
-        await APIService.instance.fetchVideos(query: _currentquery);
+        await APIService.instance.fetchVideos(query: _currentQuery);
     List<Video> allVideos = _videoItem..addAll(moreVideos);
     setState(() {
       _videoItem = allVideos;
@@ -80,8 +83,8 @@ class _SearchState extends State<SearchPage> {
               controller: _textController,
               onFieldSubmitted: (String q) {
                 if (q != "") {
-                  _currentquery = q;
-                  _listVideos(_currentquery);
+                  _currentQuery = q;
+                  _listVideos(_currentQuery);
                   //_textController.clear();
                 }
               },
@@ -104,7 +107,7 @@ class _SearchState extends State<SearchPage> {
                       itemCount: _videoItem.length,
                       itemBuilder: (BuildContext context, int index) {
                         Video video = _videoItem[index];
-                        return _buildVideo(video);
+                        return _buildVideo(video, index);
                       },
                     ),
                   ),)
@@ -121,11 +124,19 @@ class _SearchState extends State<SearchPage> {
                 ),
         ],
       ),
-      floatingActionButton: FloatingActionButton (
-        child: Icon(Icons.play_arrow),
-        onPressed: () {
-          Queue.instance.printQueue();
-        },
+      floatingActionButton: Visibility( // play all the songs listed in the search, starting with the first video
+        visible: _buttonFlag,
+        child: FloatingActionButton (
+          child: Icon(Icons.play_arrow),
+          onPressed: () {
+            Queue queue = new Queue(0, _videoItem);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => MusicPlayerPage(queue: queue)),
+            );
+          },
+        ),
       ),
     );
   }

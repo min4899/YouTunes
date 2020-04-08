@@ -64,10 +64,12 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: Icon(Icons.search),
             title: Text('Search'),
           ),
+          /*
           BottomNavigationBarItem(
             icon: Icon(Icons.library_music),
             title: Text('Library'),
           ),
+           */
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.blueAccent,

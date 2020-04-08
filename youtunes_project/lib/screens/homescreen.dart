@@ -28,6 +28,7 @@ class _HomeState extends State<HomePage> {
         "Top Songs South Korea"
       ];
     });
+    print("test");
   }
 
   _listTrendingVideos() async {
