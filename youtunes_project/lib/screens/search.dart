@@ -113,8 +113,6 @@ class _SearchState extends State<SearchPage> {
                   ),)
               : Expanded(
                   child: Center(
-                    //width: 100,
-                    //height: 100,
                     child: CircularProgressIndicator(
                       valueColor: AlwaysStoppedAnimation<Color>(
                         Theme.of(context).primaryColor, // Red
