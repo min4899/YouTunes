@@ -4,17 +4,19 @@ import 'package:youtunes_project/models/video_model.dart';
 import 'package:youtunes_project/services/api_services.dart';
 import 'package:youtunes_project/models/queue.dart';
 
-class SearchPage extends StatefulWidget {
+class PlaylistResultPage extends StatefulWidget {
+  PlaylistResultPage({Key key, this.title, this.playlist_id}) : super(key: key);
+
+  String title;
+  String playlist_id;
+
   @override
-  _SearchState createState() => _SearchState();
+  _PlaylistResult createState() => _PlaylistResult();
 }
 
-class _SearchState extends State<SearchPage> {
-  TextEditingController _textController;
-  String _videoId;
+class _PlaylistResult extends State<PlaylistResultPage> {
   List<Video> _videoItem;
   bool _isLoading = false;
-  String _currentQuery;
   int _searchLimit = 30;
 
   bool _buttonFlag = false;
@@ -22,11 +24,11 @@ class _SearchState extends State<SearchPage> {
   @override
   void initState() {
     super.initState();
-    _textController = TextEditingController();
+    _listPlaylistVideos(widget.playlist_id);
   }
 
-  _listVideos(String q) async {
-    List<Video> temp = await APIService.instance.fetchVideos(query: q);
+  _listPlaylistVideos(String q) async {
+    List<Video> temp = await APIService.instance.fetchPlaylistItem(playlist_id: widget.playlist_id);
     setState(() {
       _videoItem = temp;
       _buttonFlag = true;
@@ -40,7 +42,7 @@ class _SearchState extends State<SearchPage> {
           leading: Image.network(video.thumbnailUrl),
           title: Text(video.title),
           subtitle: Text(video.channelTitle != null ? video.channelTitle : ""),
-          //trailing: Icon(Icons.more_vert),
+          trailing: Icon(Icons.more_vert),
           onTap: () {
             Queue queue = new Queue(index, _videoItem); // TEST
             Navigator.push(
@@ -58,7 +60,7 @@ class _SearchState extends State<SearchPage> {
   _loadMoreVideos() async {
     _isLoading = true;
     List<Video> moreVideos =
-        await APIService.instance.fetchVideos(query: _currentQuery);
+        await APIService.instance.fetchPlaylistItem(playlist_id: widget.playlist_id);
     List<Video> allVideos = _videoItem..addAll(moreVideos);
     setState(() {
       _videoItem = allVideos;
@@ -70,26 +72,16 @@ class _SearchState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Search"),
+        title: Text(widget.title),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
       body: Column(
         children: <Widget>[
-          Container(
-            margin: EdgeInsets.only(left: 10, right: 10),
-            child: TextFormField(
-              decoration: const InputDecoration(
-                hintText: "Search music",
-              ),
-              controller: _textController,
-              onFieldSubmitted: (String q) {
-                if (q != "") {
-                  _currentQuery = q;
-                  _listVideos(_currentQuery);
-                  //_textController.clear();
-                }
-              },
-            ),
-          ),
           _videoItem != null && _videoItem.length > 0
               ? NotificationListener<ScrollNotification>(
                   onNotification: (ScrollNotification scrollDetails) {

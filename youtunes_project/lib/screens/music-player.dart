@@ -5,12 +5,9 @@ import 'package:youtunes_project/models/video_model.dart';
 import 'package:youtunes_project/models/queue.dart';
 
 class MusicPlayerPage extends StatefulWidget {
-  //MusicPlayerPage({Key key, this.video}) : super(key: key);
   MusicPlayerPage({Key key, this.queue}) : super(key: key);
 
-  //final Video video;
-
-  Queue queue; // Test
+  Queue queue;
 
   @override
   _MusicPlayerState createState() => _MusicPlayerState();
@@ -146,7 +143,7 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
         leading: Image.network(video.thumbnailUrl),
         title: Text(video.title),
         subtitle: Text(video.channelTitle != null ? video.channelTitle : ""),
-        trailing: Icon(Icons.drag_handle),
+        //trailing: Icon(Icons.drag_handle),
         onTap: () {
           _playQueueVideo(index);
         },
@@ -244,6 +241,7 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
                           },
                         ),
                       ),
+                      /*
                       Container(
                         margin: EdgeInsets.only(right: 10),
                         alignment: Alignment.bottomCenter,
@@ -253,6 +251,7 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
                           onPressed: () {},
                         ),
                       ),
+                      */
                     ],
                   ),
                 ),

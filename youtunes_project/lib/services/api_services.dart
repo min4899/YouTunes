@@ -53,9 +53,10 @@ class APIService {
       // Fetch first couple videos from query
       List<Video> videos = [];
       videosJson.forEach(
-        (json) => videos.add(
-          Video.fromMap(json),
-        ),
+            (json) =>
+            videos.add(
+              Video.fromMap(json),
+            ),
       );
       return videos;
     } else {
@@ -69,7 +70,7 @@ class APIService {
     Map<String, String> parameters = {
       'part': 'snippet',
       'type': 'video',
-      'maxResults': '5',
+      'maxResults': '6',
       'order': 'relevance',
       'videoCategoryId': '10',
       'relatedToVideoId': id,
@@ -98,9 +99,10 @@ class APIService {
       // Fetch first couple videos from query
       List<Video> videos = [];
       videosJson.forEach(
-            (json) => videos.add(
-          Video.fromMap(json),
-        ),
+            (json) =>
+            videos.add(
+              Video.fromMap(json),
+            ),
       );
       return videos;
     } else {
@@ -149,7 +151,7 @@ class APIService {
       */
       List<Video> videos = [];
       videosJson.forEach(
-          (json) {
+              (json) {
             videos.add(Video(
               id: json['id'],
               title: json['snippet']['title'],
@@ -164,18 +166,21 @@ class APIService {
     }
   }
 
-  Future<Duration> fetchDuration(String videoId) async {
+  Future<List<Video>> fetchPlaylistItem({String playlist_id}) async {
+    print("Retrieving videos from playlist: " + playlist_id);
+
     Map<String, String> parameters = {
-      'part': 'contentDetails',
-      'id': videoId,
+      'part': 'snippet',
+      'maxResults': '8',
+      'pageToken': _nextPageToken,
+      'playlistId': playlist_id,
       'key': apikey,
     };
     Uri uri = Uri.https(
       _baseUrl,
-      '/youtube/v3/videos',
+      '/youtube/v3/playlistItems',
       parameters,
     );
-    //print(uri);
 
     Map<String, String> headers = {
       HttpHeaders.contentTypeHeader: 'application/json',
@@ -184,58 +189,28 @@ class APIService {
     // Get Videos
     var response = await http.get(uri, headers: headers);
 
-    //print(response);
-
     if (response.statusCode == 200) {
       var data = json.decode(response.body);
 
-      String iso = data["items"][0]["contentDetails"]["duration"];
+      _nextPageToken = data['nextPageToken'] ?? '';
+      List<dynamic> videosJson = data['items'];
 
-      int secondsFromIso = _convertYoutubeDurationToSeconds(iso);
-
-      Duration duration = new Duration(seconds: secondsFromIso);
-      return duration;
-    }
-    else {
+      List<Video> videos = [];
+      videosJson.forEach(
+              (json) {
+            videos.add(Video(
+              id: json['snippet']['resourceId']['videoId'],
+              title: json['snippet']['title'],
+              thumbnailUrl: json['snippet']['thumbnails']['medium']['url'],
+              channelTitle: json['snippet']['channelTitle'],
+            ));
+          }
+      );
+      return videos;
+    } else {
       throw json.decode(response.body)['error']['message'];
     }
   }
 
-  int _convertYoutubeDurationToSeconds(String duration){
-    int returnSeconds = 0;
-
-    var dayTime = duration.split('T');
-    String time = dayTime[1];
-
-    int index = 0;
-    String digitString = "";
-    while(index < time.length)
-    {
-      if(_isDigit(time, index)) // digit, add to digit string
-          {
-        digitString += time[index];
-      }
-      else // a letter, convert digit string, check letter, apply time
-          {
-        int digits = int.parse(digitString);
-        if(time[index] == 'H')
-        {
-          returnSeconds += digits * 60 * 60;
-        }
-        else if(time[index] == 'M')
-        {
-          returnSeconds += digits * 60;
-        }
-        else if(time[index] == 'S')
-        {
-          returnSeconds += digits;
-        }
-        digitString = "";
-      }
-      index++;
-    }
-    return returnSeconds;
-  }
-
-  bool _isDigit(String s, int idx) => (s.codeUnitAt(idx) ^ 0x30) <= 9;
+  
 }
