@@ -4,17 +4,13 @@ import 'package:youtunes_project/models/video_model.dart';
 import 'package:youtunes_project/services/api_services.dart';
 import 'package:youtunes_project/models/queue.dart';
 
-class PlaylistResultPage extends StatefulWidget {
-  PlaylistResultPage({Key key, this.title, this.playlist_id}) : super(key: key);
-
-  String title;
-  String playlist_id;
+class TrendingPage extends StatefulWidget {
 
   @override
-  _PlaylistResult createState() => _PlaylistResult();
+  _Trending createState() => _Trending();
 }
 
-class _PlaylistResult extends State<PlaylistResultPage> {
+class _Trending extends State<TrendingPage> {
   List<Video> _videoItem;
   bool _isLoading = false;
   int _searchLimit = 30;
@@ -24,11 +20,11 @@ class _PlaylistResult extends State<PlaylistResultPage> {
   @override
   void initState() {
     super.initState();
-    _listPlaylistVideos(widget.playlist_id);
+    _listTrendingVideos();
   }
 
-  _listPlaylistVideos(String q) async {
-    List<Video> temp = await APIService.instance.fetchPlaylistItem(playlist_id: widget.playlist_id);
+  _listTrendingVideos() async {
+    List<Video> temp = await APIService.instance.fetchTrending();
     setState(() {
       _videoItem = temp;
       _buttonFlag = true;
@@ -42,14 +38,13 @@ class _PlaylistResult extends State<PlaylistResultPage> {
           leading: Image.network(video.thumbnailUrl),
           title: Text(video.title),
           subtitle: Text(video.channelTitle != null ? video.channelTitle : ""),
-          //trailing: Icon(Icons.more_vert),
+          trailing: Icon(Icons.more_vert),
           onTap: () {
             Queue queue = new Queue(index, _videoItem); // TEST
             Navigator.push(
               context,
               MaterialPageRoute(
-                  //builder: (context) => MusicPlayerPage(video: video)),
-                  builder: (context) => MusicPlayerPage(queue: queue)), // TEST
+                  builder: (context) => MusicPlayerPage(queue: queue)),
             );
           },
         ),
@@ -60,7 +55,7 @@ class _PlaylistResult extends State<PlaylistResultPage> {
   _loadMoreVideos() async {
     _isLoading = true;
     List<Video> moreVideos =
-        await APIService.instance.fetchPlaylistItem(playlist_id: widget.playlist_id);
+    await APIService.instance.fetchTrending();
     List<Video> allVideos = _videoItem..addAll(moreVideos);
     setState(() {
       _videoItem = allVideos;
@@ -72,7 +67,7 @@ class _PlaylistResult extends State<PlaylistResultPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text("Trending"),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
@@ -84,34 +79,34 @@ class _PlaylistResult extends State<PlaylistResultPage> {
         children: <Widget>[
           _videoItem != null && _videoItem.length > 0
               ? NotificationListener<ScrollNotification>(
-                  onNotification: (ScrollNotification scrollDetails) {
-                    if (!_isLoading &&
-                        _videoItem.length != _searchLimit &&
-                        scrollDetails.metrics.pixels ==
-                            scrollDetails.metrics.maxScrollExtent) {
-                      _loadMoreVideos();
-                    }
-                    return false;
-                  },
-                  child: Flexible(
-                    child: ListView.builder(
-                      padding: EdgeInsets.all(8.0),
-                      itemCount: _videoItem.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        Video video = _videoItem[index];
-                        return _buildVideo(video, index);
-                      },
-                    ),
-                  ),)
+            onNotification: (ScrollNotification scrollDetails) {
+              if (!_isLoading &&
+                  _videoItem.length != _searchLimit &&
+                  scrollDetails.metrics.pixels ==
+                      scrollDetails.metrics.maxScrollExtent) {
+                _loadMoreVideos();
+              }
+              return false;
+            },
+            child: Flexible(
+              child: ListView.builder(
+                padding: EdgeInsets.all(8.0),
+                itemCount: _videoItem.length,
+                itemBuilder: (BuildContext context, int index) {
+                  Video video = _videoItem[index];
+                  return _buildVideo(video, index);
+                },
+              ),
+            ),)
               : Expanded(
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        Theme.of(context).primaryColor, // Red
-                      ),
-                    ),
-                  ),
+            child: Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  Theme.of(context).primaryColor, // Red
                 ),
+              ),
+            ),
+          ),
         ],
       ),
       floatingActionButton: Visibility( // play all the songs listed in the search, starting with the first video

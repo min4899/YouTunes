@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:youtunes_project/models/video_model.dart';
-import 'package:youtunes_project/models/video_model2.dart';
 import 'package:youtunes_project/keys.dart';
 
 // QUOTA LIMIT OF 10,000 UNITS EACH DAY
@@ -115,7 +114,7 @@ class APIService {
 
     Map<String, String> parameters = {
       'part': 'snippet',
-      'maxResults': '6',
+      'maxResults': '8',
       'chart': 'mostPopular',
       'videoCategoryId': '10',
       'pageToken': _nextPageToken,
@@ -212,5 +211,49 @@ class APIService {
     }
   }
 
-  
+  Future<List<Video>> fetchPlaylistInfo({String playlist_id}) async {
+    print("Retrieving videos from playlist: " + playlist_id);
+
+    Map<String, String> parameters = {
+      'part': 'snippet',
+      'maxResults': '7',
+      'pageToken': _nextPageToken,
+      'playlistId': playlist_id,
+      'key': apikey,
+    };
+    Uri uri = Uri.https(
+      _baseUrl,
+      '/youtube/v3/playlistItems',
+      parameters,
+    );
+
+    Map<String, String> headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+    };
+
+    // Get Videos
+    var response = await http.get(uri, headers: headers);
+
+    if (response.statusCode == 200) {
+      var data = json.decode(response.body);
+
+      _nextPageToken = data['nextPageToken'] ?? '';
+      List<dynamic> videosJson = data['items'];
+
+      List<Video> videos = [];
+      videosJson.forEach(
+              (json) {
+            videos.add(Video(
+              id: json['snippet']['resourceId']['videoId'],
+              title: json['snippet']['title'],
+              thumbnailUrl: json['snippet']['thumbnails']['medium']['url'],
+              channelTitle: json['snippet']['channelTitle'],
+            ));
+          }
+      );
+      return videos;
+    } else {
+      throw json.decode(response.body)['error']['message'];
+    }
+  }
 }

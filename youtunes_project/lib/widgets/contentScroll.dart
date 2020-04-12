@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:youtunes_project/models/video_model.dart';
 import 'package:youtunes_project/models/queue.dart';
 import 'package:youtunes_project/screens/music-player.dart';
+import 'package:youtunes_project/screens/trending-screen.dart';
 
 class ContentScroll extends StatelessWidget {
   final String title;
@@ -19,7 +20,7 @@ class ContentScroll extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => MusicPlayerPage(queue: queue)), // TEST
+              builder: (context) => MusicPlayerPage(queue: queue)),
         );
       },
       child: Container(
@@ -63,16 +64,6 @@ class ContentScroll extends StatelessWidget {
               overflow: TextOverflow.fade,
               textAlign: TextAlign.left,
             ),
-            /*
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-
-                ],
-              ),
-            ),
-            */
           ],
         ),
       ),
@@ -101,7 +92,12 @@ class ContentScroll extends StatelessWidget {
                 FlatButton(
                   color: Colors.blue,
                   onPressed: () {
-
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => TrendingPage()
+                      )
+                    );
                   },
                   child: Text(
                     "More",

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:youtunes_project/models/video_model.dart';
 import 'package:youtunes_project/services/api_services.dart';
 import 'package:youtunes_project/widgets/contentScroll.dart';
+import 'package:youtunes_project/widgets/chartScroll.dart';
 import 'package:youtunes_project/screens/playlist-result.dart';
 
 class HomePage extends StatefulWidget {
@@ -11,6 +12,7 @@ class HomePage extends StatefulWidget {
 
 class _HomeState extends State<HomePage> {
   List<Video> _trendingVideos;
+  /*
   List<String> _charts = [
     "Top Songs Global",
     "Top Songs United States",
@@ -27,6 +29,7 @@ class _HomeState extends State<HomePage> {
     "PL4fGSI1pDJn6fko1AmNa_pdGPZr5ROFvd",
     "PL4fGSI1pDJn7BPgh08TpP9OLpFwhzTZr1",
   ];
+  */
 
   @override
   void initState() {
@@ -41,6 +44,7 @@ class _HomeState extends State<HomePage> {
     });
   }
 
+  /*
   _buildChartCard(int index) {
     return InkWell(
       onTap: () {
@@ -78,6 +82,7 @@ class _HomeState extends State<HomePage> {
       ),
     );
   }
+  */
 
   @override
   Widget build(BuildContext context) {
@@ -87,6 +92,7 @@ class _HomeState extends State<HomePage> {
       ),
       body: ListView(
         children: <Widget>[
+          /*
           Container(
             height: 180.0,
             child: ListView.builder(
@@ -98,10 +104,13 @@ class _HomeState extends State<HomePage> {
               },
             ),
           ),
+          */
+          ChartScroll(),
           ContentScroll(
             title: "Trending",
             videos: _trendingVideos,
           ),
+
         ],
       ),
     );
