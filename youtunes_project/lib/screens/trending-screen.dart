@@ -24,6 +24,7 @@ class _Trending extends State<TrendingPage> {
   }
 
   _listTrendingVideos() async {
+    APIService.instance.nextPageToken = "";
     List<Video> temp = await APIService.instance.fetchTrending();
     setState(() {
       _videoItem = temp;

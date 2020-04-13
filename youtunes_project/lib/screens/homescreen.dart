@@ -35,18 +35,18 @@ class _HomeState extends State<HomePage> {
   // New and Trending Playlists
   List<Playlist> playlists_1;
   List<String> playlistIDs_1 = [
-    "RDCLAK5uy_k7O9KByATGA1TqFYhyOkylpJ6fM1avtww",
-    "RDCLAK5uy_nGZRi-an-ruqiZlNJSGhCDHucdp2FBNfI",
-    "RDCLAK5uy_n0vqPVYwwLGVv8XMpjj7IovO50hqegreo",
+    "RDCLAK5uy_k7O9KByATGA1TqFYhyOkylpJ6fM1avtww", // Clout Rising
+    "RDCLAK5uy_nGZRi-an-ruqiZlNJSGhCDHucdp2FBNfI", // R&B Wave
+    "RDCLAK5uy_n0vqPVYwwLGVv8XMpjj7IovO50hqegreo", // Country's New Crop
   ];
 
   // Mood, Moment, Vibe
   List<Playlist> playlists_2;
   List<String> playlistIDs_2 = [
-    "RDCLAK5uy_n9hGvSNdO2TpX8jJuiThvnfrfIi1qNRnY",
-    "RDCLAK5uy_nH_fdBVCcbNaVwi_tmZajZRq-ekddiuFY",
-    "RDCLAK5uy_n3VXlgOKj6OxuN3TpKEnVBX4qia-_2c1k",
-    "RDCLAK5uy_nBE4bLuBHUXWZrF59ZrkPEToKt8M_I3Vc"
+    "RDCLAK5uy_n9hGvSNdO2TpX8jJuiThvnfrfIi1qNRnY", // Classical Focus
+    "RDCLAK5uy_nH_fdBVCcbNaVwi_tmZajZRq-ekddiuFY", // Pop Meets Country
+    "RDCLAK5uy_n3VXlgOKj6OxuN3TpKEnVBX4qia-_2c1k", // Champagne Diet
+    "RDCLAK5uy_nBE4bLuBHUXWZrF59ZrkPEToKt8M_I3Vc" // Coffee Shop Blend
   ];
 
   @override
@@ -66,6 +66,7 @@ class _HomeState extends State<HomePage> {
   }
 
   _listTrendingVideos() async {
+    APIService.instance.nextPageToken = "";
     List<Video> temp = await APIService.instance.fetchTrending();
     setState(() {
       _trendingVideos = temp;
@@ -73,6 +74,7 @@ class _HomeState extends State<HomePage> {
   }
 
   List<Playlist> _getPlaylistInfos(List<String> playlistIDs) {
+    APIService.instance.nextPageToken = "";
     List<Playlist> playlist_items = [];
     playlistIDs.forEach((id) async {
       Playlist temp =
@@ -92,7 +94,7 @@ class _HomeState extends State<HomePage> {
         children: <Widget>[
           ChartScroll(),
           ContentScroll(
-            title: "Trending",
+            title: "Popular Now",
             videos: _trendingVideos,
           ),
           ContentScroll2(title: "New & Trending", playlists: playlists_1,),

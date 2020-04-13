@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:youtunes_project/models/playlist_model.dart';
+import 'package:youtunes_project/screens/playlist-result2.dart';
 
 // Display multiple video playlists recommended by YouTube
 class ContentScroll2 extends StatelessWidget {
@@ -15,7 +16,11 @@ class ContentScroll2 extends StatelessWidget {
   _buildContentCard(context, int index) {
     return InkWell(
       onTap: () {
-
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => PlaylistResultPage2(playlist: playlists[index])),
+        );
       },
       child: Container(
         margin: EdgeInsets.all(10.0),

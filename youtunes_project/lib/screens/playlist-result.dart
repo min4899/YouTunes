@@ -28,6 +28,7 @@ class _PlaylistResult extends State<PlaylistResultPage> {
   }
 
   _listPlaylistVideos(String q) async {
+    APIService.instance.nextPageToken = "";
     List<Video> temp = await APIService.instance.fetchPlaylistItem(playlist_id: widget.playlist_id);
     setState(() {
       _videoItem = temp;

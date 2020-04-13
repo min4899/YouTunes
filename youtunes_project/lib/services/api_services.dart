@@ -13,7 +13,7 @@ class APIService {
   static final APIService instance = APIService._instantiate();
 
   final String _baseUrl = 'www.googleapis.com';
-  String _nextPageToken = '';
+  String nextPageToken = '';
 
   Future<List<Video>> fetchVideos({String query}) async {
     print("Searching videos with querry: " + query);
@@ -25,7 +25,7 @@ class APIService {
       'maxResults': '6',
       'order': 'relevance',
       'videoCategoryId': '10',
-      'pageToken': _nextPageToken,
+      'pageToken': nextPageToken,
       'key': apikey,
     };
     Uri uri = Uri.https(
@@ -47,7 +47,7 @@ class APIService {
     if (response.statusCode == 200) {
       var data = json.decode(response.body);
 
-      _nextPageToken = data['nextPageToken'] ?? '';
+      nextPageToken = data['nextPageToken'] ?? '';
       List<dynamic> videosJson = data['items'];
 
       // Fetch first couple videos from query
@@ -74,7 +74,7 @@ class APIService {
       'order': 'relevance',
       'videoCategoryId': '10',
       'relatedToVideoId': id,
-      'pageToken': _nextPageToken,
+      'pageToken': nextPageToken,
       'key': apikey,
     };
     Uri uri = Uri.https(
@@ -93,7 +93,7 @@ class APIService {
     if (response.statusCode == 200) {
       var data = json.decode(response.body);
 
-      _nextPageToken = data['nextPageToken'] ?? '';
+      nextPageToken = data['nextPageToken'] ?? '';
       List<dynamic> videosJson = data['items'];
 
       // Fetch first couple videos from query
@@ -118,7 +118,7 @@ class APIService {
       'maxResults': '8',
       'chart': 'mostPopular',
       'videoCategoryId': '10',
-      'pageToken': _nextPageToken,
+      'pageToken': nextPageToken,
       'key': apikey,
     };
     Uri uri = Uri.https(
@@ -137,7 +137,7 @@ class APIService {
     if (response.statusCode == 200) {
       var data = json.decode(response.body);
 
-      _nextPageToken = data['nextPageToken'] ?? '';
+      nextPageToken = data['nextPageToken'] ?? '';
       List<dynamic> videosJson = data['items'];
 
       // Fetch first couple videos from query
@@ -172,7 +172,7 @@ class APIService {
     Map<String, String> parameters = {
       'part': 'snippet',
       'maxResults': '8',
-      'pageToken': _nextPageToken,
+      'pageToken': nextPageToken,
       'playlistId': playlist_id,
       'key': apikey,
     };
@@ -192,7 +192,7 @@ class APIService {
     if (response.statusCode == 200) {
       var data = json.decode(response.body);
 
-      _nextPageToken = data['nextPageToken'] ?? '';
+      nextPageToken = data['nextPageToken'] ?? '';
       List<dynamic> videosJson = data['items'];
 
       List<Video> videos = [];
@@ -217,7 +217,7 @@ class APIService {
 
     Map<String, String> parameters = {
       'part': 'snippet',
-      'pageToken': _nextPageToken,
+      //'pageToken': nextPageToken,
       'id': playlist_id,
       'key': apikey,
     };
@@ -237,7 +237,7 @@ class APIService {
     if (response.statusCode == 200) {
       var data = json.decode(response.body);
 
-      _nextPageToken = data['nextPageToken'] ?? '';
+      //nextPageToken = data['nextPageToken'] ?? '';
       List<dynamic> playlistJson = data['items'];
 
       Playlist playlist = new Playlist(

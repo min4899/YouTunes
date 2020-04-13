@@ -26,6 +26,7 @@ class _SearchState extends State<SearchPage> {
   }
 
   _listVideos(String q) async {
+    APIService.instance.nextPageToken = "";
     List<Video> temp = await APIService.instance.fetchVideos(query: q);
     setState(() {
       _videoItem = temp;
