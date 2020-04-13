@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:youtunes_project/models/video_model.dart';
+import 'package:youtunes_project/models/playlist_model.dart';
 import 'package:youtunes_project/keys.dart';
 
 // QUOTA LIMIT OF 10,000 UNITS EACH DAY
@@ -211,19 +212,18 @@ class APIService {
     }
   }
 
-  Future<List<Video>> fetchPlaylistInfo({String playlist_id}) async {
-    print("Retrieving videos from playlist: " + playlist_id);
+  Future<Playlist> fetchPlaylistInfo({String playlist_id}) async {
+    print("Retrieving playlist data: " + playlist_id);
 
     Map<String, String> parameters = {
       'part': 'snippet',
-      'maxResults': '7',
       'pageToken': _nextPageToken,
-      'playlistId': playlist_id,
+      'id': playlist_id,
       'key': apikey,
     };
     Uri uri = Uri.https(
       _baseUrl,
-      '/youtube/v3/playlistItems',
+      '/youtube/v3/playlists',
       parameters,
     );
 
@@ -238,20 +238,18 @@ class APIService {
       var data = json.decode(response.body);
 
       _nextPageToken = data['nextPageToken'] ?? '';
-      List<dynamic> videosJson = data['items'];
+      List<dynamic> playlistJson = data['items'];
 
-      List<Video> videos = [];
-      videosJson.forEach(
-              (json) {
-            videos.add(Video(
-              id: json['snippet']['resourceId']['videoId'],
-              title: json['snippet']['title'],
-              thumbnailUrl: json['snippet']['thumbnails']['medium']['url'],
-              channelTitle: json['snippet']['channelTitle'],
-            ));
-          }
+      Playlist playlist = new Playlist(
+          id: playlistJson[0]['id'],
+          title: playlistJson[0]['snippet']['title'],
+          description: playlistJson[0]['snippet']['description'],
+          thumbnailUrl: playlistJson[0]['snippet']['thumbnails']['medium']['url'],
       );
-      return videos;
+
+      //print(playlist.title + ": " + playlist.thumbnailUrl);
+
+      return playlist;
     } else {
       throw json.decode(response.body)['error']['message'];
     }

@@ -1,5 +1,4 @@
 import 'package:youtunes_project/models/video_model.dart';
-import 'package:youtunes_project/services/api_services.dart';
 
 class Queue {
   int currentIndex = 0;

@@ -4,6 +4,7 @@ import 'package:youtunes_project/models/queue.dart';
 import 'package:youtunes_project/screens/music-player.dart';
 import 'package:youtunes_project/screens/trending-screen.dart';
 
+// For Trending Videos
 class ContentScroll extends StatelessWidget {
   final String title;
   final List<Video> videos;
@@ -118,7 +119,8 @@ class ContentScroll extends StatelessWidget {
                     },
                   ),
                 )
-              : Expanded(
+              : SizedBox(
+                height: 190,
                 child: Center(
                   child: CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation<Color>(

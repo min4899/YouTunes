@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:youtunes_project/models/video_model.dart';
+import 'package:youtunes_project/models/playlist_model.dart';
 import 'package:youtunes_project/services/api_services.dart';
 import 'package:youtunes_project/widgets/contentScroll.dart';
+import 'package:youtunes_project/widgets/contentScroll2.dart';
 import 'package:youtunes_project/widgets/chartScroll.dart';
-import 'package:youtunes_project/screens/playlist-result.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -31,10 +32,37 @@ class _HomeState extends State<HomePage> {
   ];
   */
 
+  // New and Trending Playlists
+  List<Playlist> playlists_1;
+  List<String> playlistIDs_1 = [
+    "RDCLAK5uy_k7O9KByATGA1TqFYhyOkylpJ6fM1avtww",
+    "RDCLAK5uy_nGZRi-an-ruqiZlNJSGhCDHucdp2FBNfI",
+    "RDCLAK5uy_n0vqPVYwwLGVv8XMpjj7IovO50hqegreo",
+  ];
+
+  // Mood, Moment, Vibe
+  List<Playlist> playlists_2;
+  List<String> playlistIDs_2 = [
+    "RDCLAK5uy_n9hGvSNdO2TpX8jJuiThvnfrfIi1qNRnY",
+    "RDCLAK5uy_nH_fdBVCcbNaVwi_tmZajZRq-ekddiuFY",
+    "RDCLAK5uy_n3VXlgOKj6OxuN3TpKEnVBX4qia-_2c1k",
+    "RDCLAK5uy_nBE4bLuBHUXWZrF59ZrkPEToKt8M_I3Vc"
+  ];
+
   @override
   void initState() {
     super.initState();
     _listTrendingVideos();
+
+    List<Playlist> temp = _getPlaylistInfos(playlistIDs_1);
+    setState(() {
+      playlists_1 = temp;
+    });
+
+    temp = _getPlaylistInfos(playlistIDs_2);
+    setState(() {
+      playlists_2 = temp;
+    });
   }
 
   _listTrendingVideos() async {
@@ -44,45 +72,15 @@ class _HomeState extends State<HomePage> {
     });
   }
 
-  /*
-  _buildChartCard(int index) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => PlaylistResultPage(title: _charts[index], playlist_id: _chartUrl[index])), // TEST
-        );
-      },
-      child: Container(
-        margin: EdgeInsets.all(10.0),
-        padding: EdgeInsets.all(10.0),
-        width: 190.0,
-        decoration: BoxDecoration(
-          color: Colors.black38,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black26,
-              offset: Offset(0.0, 2.0),
-              blurRadius: 6.0,
-            ),
-          ],
-        ),
-        child: Center(
-          child: Text(
-            _charts[index],
-            style: TextStyle(
-              fontSize: 14.0,
-              fontWeight: FontWeight.bold,
-            ),
-            maxLines: 3,
-            overflow: TextOverflow.fade,
-          ),
-        ),
-      ),
-    );
+  List<Playlist> _getPlaylistInfos(List<String> playlistIDs) {
+    List<Playlist> playlist_items = [];
+    playlistIDs.forEach((id) async {
+      Playlist temp =
+          await APIService.instance.fetchPlaylistInfo(playlist_id: id);
+      playlist_items.add(temp);
+    });
+    return playlist_items;
   }
-  */
 
   @override
   Widget build(BuildContext context) {
@@ -92,25 +90,13 @@ class _HomeState extends State<HomePage> {
       ),
       body: ListView(
         children: <Widget>[
-          /*
-          Container(
-            height: 180.0,
-            child: ListView.builder(
-              padding: EdgeInsets.symmetric(horizontal: 10.0),
-              scrollDirection: Axis.horizontal,
-              itemCount: _charts.length,
-              itemBuilder: (BuildContext context, int index) {
-                return _buildChartCard(index);
-              },
-            ),
-          ),
-          */
           ChartScroll(),
           ContentScroll(
             title: "Trending",
             videos: _trendingVideos,
           ),
-
+          ContentScroll2(title: "New & Trending", playlists: playlists_1,),
+          ContentScroll2(title: "Mood, Moment, Vibe", playlists: playlists_2,),
         ],
       ),
     );
