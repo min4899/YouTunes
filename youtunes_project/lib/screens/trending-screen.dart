@@ -13,7 +13,7 @@ class TrendingPage extends StatefulWidget {
 class _Trending extends State<TrendingPage> {
   List<Video> _videoItem;
   bool _isLoading = false;
-  int _searchLimit = 30;
+  int _searchLimit = 40;
 
   bool _buttonFlag = false;
 

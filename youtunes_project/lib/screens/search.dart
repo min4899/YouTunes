@@ -26,7 +26,7 @@ class _SearchState extends State<SearchPage> {
   }
 
   _listVideos(String q) async {
-    APIService.instance.nextPageToken = "";
+    APIService.instance.searchNextPageToken = "";
     List<Video> temp = await APIService.instance.fetchVideos(query: q);
     setState(() {
       _videoItem = temp;
@@ -78,10 +78,16 @@ class _SearchState extends State<SearchPage> {
           Container(
             margin: EdgeInsets.only(left: 10, right: 10),
             child: TextFormField(
-              decoration: const InputDecoration(
-                hintText: "Search music",
-              ),
               controller: _textController,
+              decoration: InputDecoration(
+                hintText: "Search music",
+                suffixIcon: IconButton(
+                  icon: Icon(Icons.clear),
+                  onPressed: () {
+                    _textController.clear();
+                    },
+                ),
+              ),
               onFieldSubmitted: (String q) {
                 if (q != "") {
                   _currentQuery = q;

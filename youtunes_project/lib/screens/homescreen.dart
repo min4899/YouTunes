@@ -13,6 +13,7 @@ class HomePage extends StatefulWidget {
 
 class _HomeState extends State<HomePage> {
   List<Video> _trendingVideos;
+
   /*
   List<String> _charts = [
     "Top Songs Global",
@@ -40,11 +41,18 @@ class _HomeState extends State<HomePage> {
     "RDCLAK5uy_n0vqPVYwwLGVv8XMpjj7IovO50hqegreo", // Country's New Crop
   ];
 
-  // Mood, Moment, Vibe
+  // Hotlist
   List<Playlist> playlists_2;
   List<String> playlistIDs_2 = [
+    "RDCLAK5uy_kmPRjHDECIcuVwnKsx2Ng7fyNgFKWNJFs", // The Hit List
+    "RDCLAK5uy_kLWIr9gv1XLlPbaDS965-Db4TrBoUTxQ8", // EDM Hotlist
+    "RDCLAK5uy_kuEc3lB_I49bqnoy24kbjutvsiOi9ZQe0" // Alternative Hotlist
+  ];
+
+  // Mood, Moment, Vibe
+  List<Playlist> playlists_3;
+  List<String> playlistIDs_3 = [
     "RDCLAK5uy_n9hGvSNdO2TpX8jJuiThvnfrfIi1qNRnY", // Classical Focus
-    "RDCLAK5uy_nH_fdBVCcbNaVwi_tmZajZRq-ekddiuFY", // Pop Meets Country
     "RDCLAK5uy_n3VXlgOKj6OxuN3TpKEnVBX4qia-_2c1k", // Champagne Diet
     "RDCLAK5uy_nBE4bLuBHUXWZrF59ZrkPEToKt8M_I3Vc" // Coffee Shop Blend
   ];
@@ -62,6 +70,11 @@ class _HomeState extends State<HomePage> {
     temp = _getPlaylistInfos(playlistIDs_2);
     setState(() {
       playlists_2 = temp;
+    });
+
+    temp = _getPlaylistInfos(playlistIDs_3);
+    setState(() {
+      playlists_3 = temp;
     });
   }
 
@@ -98,7 +111,8 @@ class _HomeState extends State<HomePage> {
             videos: _trendingVideos,
           ),
           ContentScroll2(title: "New & Trending", playlists: playlists_1,),
-          ContentScroll2(title: "Mood, Moment, Vibe", playlists: playlists_2,),
+          ContentScroll2(title: "Hotlist", playlists: playlists_2,),
+          ContentScroll2(title: "Mood, Moment, Vibe", playlists: playlists_3,),
         ],
       ),
     );

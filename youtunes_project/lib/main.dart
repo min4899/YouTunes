@@ -27,14 +27,15 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
-  static const TextStyle optionStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-  static List<Widget> _widgetOptions = <Widget>[
+  List<Widget> _widgetOptions = <Widget>[
     HomePage(),
     SearchPage(),
+    /*
     Text(
       'Index 2: Library',
-      style: optionStyle,
+      style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
     ),
+    */
   ];
 
   void _onItemTapped(int index) {
@@ -47,12 +48,13 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       /*
-      appBar: AppBar(
-        title: const Text('BottomNavigationBar Sample'),
-      ),
-      */
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
+      ),
+      */
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _widgetOptions,
       ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.black87,
@@ -73,7 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
            */
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.blueAccent,
+        selectedItemColor: Colors.cyan,
         onTap: _onItemTapped,
       ),
     );

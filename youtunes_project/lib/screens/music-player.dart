@@ -70,14 +70,6 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
     }
   }
 
-  /*
-  void _setQueue() {
-    queue.videos.insert(0, widget.video);
-    queue.currentIndex = 0;
-    queue.printQueue();
-  }
-   */
-
   void _previousVideo() {
     if (widget.queue.currentIndex > 0) {
       widget.queue.currentIndex--; // previous index
@@ -139,6 +131,7 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
 
   _buildQueueVideo(Video video, int index) {
     return Container(
+
       child: ListTile(
         leading: Image.network(video.thumbnailUrl),
         title: Text(video.title),
@@ -173,57 +166,6 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
           children: <Widget>[
             Column(
               children: <Widget>[
-                /*
-                Expanded(
-                  // for top bar
-                  flex: 10,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Container(
-                        margin: EdgeInsets.only(left: 10),
-                        alignment: Alignment.bottomCenter,
-                        child: IconButton(
-                          icon: Icon(Icons.keyboard_arrow_down),
-                          iconSize: 40,
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                        ),
-                      ),
-                      Container(
-                        margin: EdgeInsets.only(right: 10),
-                        alignment: Alignment.bottomCenter,
-                        child: IconButton(
-                          icon: Icon(Icons.more_vert),
-                          iconSize: 40,
-                          onPressed: () {},
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  // video
-                  flex: 40,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      YoutubePlayer(
-                        controller: _controller,
-                        onReady: () {
-                          print("Video player loaded. Playing video.");
-                          _controller.play();
-                          _playing = true;
-                        },
-                        onEnded: (YoutubeMetaData) {
-                          _nextVideo();
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                */
                 Container(
                   // for top bar
                   height: height / 10,
@@ -337,11 +279,13 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: <Widget>[
+                      /*
                       IconButton(
                         icon: Icon(Icons.favorite_border),
                         iconSize: 35,
                         onPressed: () {},
                       ),
+                      */
                       IconButton(
                         icon: Icon(Icons.skip_previous),
                         iconSize: 40,
@@ -383,11 +327,13 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
                           _nextVideo();
                         },
                       ),
+                      /*
                       IconButton(
                         icon: Icon(Icons.playlist_add),
                         iconSize: 35,
                         onPressed: () {},
                       ),
+                      */
                     ],
                   ),
                 ),
@@ -404,11 +350,9 @@ class _MusicPlayerState extends State<MusicPlayerPage> {
                         disabledColor: Colors.grey,
                         disabledTextColor: Colors.black,
                         padding: EdgeInsets.all(8.0),
-                        splashColor: Colors.blueAccent,
+                        splashColor: Colors.cyan,
                         onPressed: () {
-                          print("Video is playing: " +
-                              _controller.value.isPlaying.toString());
-                          widget.queue.printQueue();
+
                         },
                         child: Text(
                           "Sleep Mode",

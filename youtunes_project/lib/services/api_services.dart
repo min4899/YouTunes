@@ -14,6 +14,7 @@ class APIService {
 
   final String _baseUrl = 'www.googleapis.com';
   String nextPageToken = '';
+  String searchNextPageToken = ''; // only for search page queries
 
   Future<List<Video>> fetchVideos({String query}) async {
     print("Searching videos with querry: " + query);
@@ -25,7 +26,7 @@ class APIService {
       'maxResults': '6',
       'order': 'relevance',
       'videoCategoryId': '10',
-      'pageToken': nextPageToken,
+      'pageToken': searchNextPageToken,
       'key': apikey,
     };
     Uri uri = Uri.https(
@@ -47,7 +48,7 @@ class APIService {
     if (response.statusCode == 200) {
       var data = json.decode(response.body);
 
-      nextPageToken = data['nextPageToken'] ?? '';
+      searchNextPageToken = data['nextPageToken'] ?? '';
       List<dynamic> videosJson = data['items'];
 
       // Fetch first couple videos from query
@@ -140,15 +141,6 @@ class APIService {
       nextPageToken = data['nextPageToken'] ?? '';
       List<dynamic> videosJson = data['items'];
 
-      // Fetch first couple videos from query
-      /*
-      List<Video2> videos = [];
-      videosJson.forEach(
-            (json) => videos.add(
-          Video2.fromMap(json),
-        ),
-      );
-      */
       List<Video> videos = [];
       videosJson.forEach(
               (json) {

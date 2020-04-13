@@ -17,7 +17,7 @@ class PlaylistResultPage2 extends StatefulWidget {
 class _PlaylistResult2 extends State<PlaylistResultPage2> {
   List<Video> _videoItem;
   bool _isLoading = false;
-  int _searchLimit = 30;
+  int _searchLimit = 40;
 
   bool _buttonFlag = false;
 

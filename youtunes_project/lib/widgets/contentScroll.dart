@@ -91,7 +91,7 @@ class ContentScroll extends StatelessWidget {
                   ),
                 ),
                 FlatButton(
-                  color: Colors.blue,
+                  color: Colors.cyan,
                   onPressed: () {
                     Navigator.push(
                       context,
